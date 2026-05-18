@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting AI Assistant</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;600;700&display=swap");
+
+        :root {
+            --bg: #f7f2ea;
+            --bg-accent: #f0f7f4;
+            --ink: #1a1f2b;
+            --muted: #5b6576;
+            --primary: #0f766e;
+            --secondary: #f25f5c;
+            --card: #ffffff;
+            --border: #e4ddd3;
+            --shadow: 0 20px 40px rgba(14, 20, 30, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+            color: var(--ink);
+            background: radial-gradient(circle at top, #fffaf4 0%, var(--bg) 45%, var(--bg-accent) 100%);
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        header {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        h1 {
+            font-family: "Fraunces", serif;
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            margin: 0;
+        }
+
+        header p {
+            max-width: 640px;
+            color: var(--muted);
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .upload-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-panel::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(15, 118, 110, 0.08), transparent 60%);
+            pointer-events: none;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        input[type="file"] {
+            padding: 12px;
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            background: #fff;
+            flex: 1 1 280px;
+        }
+
+        button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 18px rgba(15, 118, 110, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .results {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .section-title {
+            font-family: "Fraunces", serif;
+            font-size: 1.4rem;
+            margin: 0 0 12px 0;
+        }
+
+        .agenda-item,
+        .action-item {
+            padding: 12px 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(15, 118, 110, 0.15);
+            background: rgba(15, 118, 110, 0.05);
+            margin-bottom: 10px;
+        }
+
+        .agenda-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .export {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .export button {
+            background: var(--secondary);
+        }
+
+        @media (max-width: 720px) {
+            main {
+                padding: 32px 18px 64px;
+            }
+
+            form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <header>
+            <h1>Meeting AI Assistant</h1>
+            <p>
+                Upload a transcript to get structured agendas, summaries, and action plans
+                using a map-reduce pipeline.
+            </p>
+        </header>
+
+        <section class="panel upload-panel">
+            <form id="upload-form">
+                <input type="file" id="file-input" accept=".txt,.pdf,.docx" />
+                <button type="submit" id="submit-btn">Process transcript</button>
+            </form>
+            <div class="status" id="status">Supported formats: TXT, PDF, DOCX.</div>
+        </section>
+
+        <section class="results">
+            <div class="panel">
+                <h2 class="section-title">Agendas</h2>
+                <div id="agendas"></div>
+            </div>
+            <div class="panel">
+                <h2 class="section-title">Summary</h2>
+                <ul id="summary"></ul>
+            </div>
+            <div class="panel">
+                <h2 class="section-title">Action Plan</h2>
+                <div id="action-plan"></div>
+                <div class="export">
+                    <button id="export-btn" type="button" disabled>Export results</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById("upload-form");
+        const fileInput = document.getElementById("file-input");
+        const submitBtn = document.getElementById("submit-btn");
+        const statusEl = document.getElementById("status");
+        const agendasEl = document.getElementById("agendas");
+        const summaryEl = document.getElementById("summary");
+        const actionPlanEl = document.getElementById("action-plan");
+        const exportBtn = document.getElementById("export-btn");
+
+        let latestResult = null;
+
+        const clearNode = (node) => {
+            while (node.firstChild) {
+                node.removeChild(node.firstChild);
+            }
+        };
+
+        const setStatus = (message) => {
+            statusEl.textContent = message;
+        };
+
+        const renderTitle = (text, target) => {
+            const parts = text.split("**");
+            parts.forEach((part, index) => {
+                const el = document.createElement(index % 2 === 1 ? "strong" : "span");
+                el.textContent = part;
+                target.appendChild(el);
+            });
+        };
+
+        const renderAgendas = (agendas) => {
+            clearNode(agendasEl);
+            if (!agendas || agendas.length === 0) {
+                agendasEl.textContent = "No agendas detected.";
+                return;
+            }
+
+            agendas.forEach((item) => {
+                const card = document.createElement("div");
+                card.className = "agenda-item";
+
+                const title = document.createElement("div");
+                title.className = "agenda-title";
+                renderTitle(item.title || "Agenda", title);
+
+                const description = document.createElement("div");
+                description.textContent = item.description || "";
+
+                card.appendChild(title);
+                card.appendChild(description);
+                agendasEl.appendChild(card);
+            });
+        };
+
+        const renderSummary = (summary) => {
+            clearNode(summaryEl);
+            if (!summary || summary.length === 0) {
+                const item = document.createElement("li");
+                item.textContent = "No summary available.";
+                summaryEl.appendChild(item);
+                return;
+            }
+
+            summary.forEach((point) => {
+                const item = document.createElement("li");
+                item.textContent = point;
+                summaryEl.appendChild(item);
+            });
+        };
+
+        const renderActionPlan = (actions) => {
+            clearNode(actionPlanEl);
+            if (!actions || actions.length === 0) {
+                actionPlanEl.textContent = "No action items detected.";
+                return;
+            }
+
+            actions.forEach((action) => {
+                const card = document.createElement("div");
+                card.className = "action-item";
+
+                const task = document.createElement("div");
+                task.textContent = action.task || "Action item";
+
+                const meta = document.createElement("div");
+                const assigned = action.assigned_to ? `Assigned to ${action.assigned_to}` : "Unassigned";
+                const deadline = action.deadline ? `Deadline: ${action.deadline}` : "No deadline";
+                meta.textContent = `${assigned} • ${deadline}`;
+                meta.style.color = "var(--muted)";
+                meta.style.fontSize = "0.9rem";
+
+                card.appendChild(task);
+                card.appendChild(meta);
+                actionPlanEl.appendChild(card);
+            });
+        };
+
+        const setBusy = (busy) => {
+            submitBtn.disabled = busy;
+            exportBtn.disabled = busy || !latestResult;
+            fileInput.disabled = busy;
+        };
+
+        exportBtn.addEventListener("click", () => {
+            if (!latestResult) {
+                return;
+            }
+            const blob = new Blob([JSON.stringify(latestResult, null, 2)], {
+                type: "application/json",
+            });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = "meeting-notes.json";
+            anchor.click();
+            URL.revokeObjectURL(url);
+        });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const file = fileInput.files[0];
+
+            if (!file) {
+                setStatus("Please select a transcript file.");
+                return;
+            }
+
+            setBusy(true);
+            setStatus("Processing transcript. This may take a moment...");
+
+            try {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                const response = await fetch("/api/summarize", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.detail || "Failed to summarize transcript");
+                }
+
+                latestResult = payload;
+                renderAgendas(payload.agendas);
+                renderSummary(payload.summary);
+                renderActionPlan(payload.action_plan);
+                setStatus("Done! Review the structured notes below.");
+                exportBtn.disabled = false;
+            } catch (error) {
+                setStatus(error.message || "Something went wrong.");
+            } finally {
+                setBusy(false);
+            }
+        });
+    </script>
+</body>
+
+</html>
