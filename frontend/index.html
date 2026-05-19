@@ -126,15 +126,19 @@
         }
 
         .results {
-            display: grid;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         }
 
         .section-title {
             font-family: "Fraunces", serif;
             font-size: 1.4rem;
             margin: 0 0 12px 0;
+        }
+
+        .panel {
+            width: 100%;
         }
 
         .agenda-item,
