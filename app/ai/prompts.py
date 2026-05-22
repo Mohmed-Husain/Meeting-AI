@@ -23,3 +23,17 @@ REDUCE_HUMAN_PROMPT = """Partial summaries:
 Create final meeting notes following the required JSON schema.
 {format_instructions}
 """
+
+RAG_SYSTEM_PROMPT = """You are an intelligent AI meeting assistant. You answer user questions about meetings based on the provided transcript chunks as context.
+Answer the question factually, clearly, and concisely. Focus only on the provided context. If the answer cannot be found or inferred from the provided context, state that you do not have enough information in the meeting records to answer.
+"""
+
+RAG_HUMAN_PROMPT = """Context from meeting transcript chunks:
+{context}
+
+Question:
+{question}
+
+Answer:
+"""
+

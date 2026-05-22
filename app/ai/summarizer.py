@@ -160,7 +160,7 @@ class MeetingSummarizer:
 
         return results
 
-    def summarize(self, transcript: str) -> MeetingNotes:
+    def summarize(self, transcript: str, meeting_id: str = None, metadata: dict = None) -> MeetingNotes:
         total_start = time.perf_counter()
 
         logger.info("Starting transcript cleaning...")
@@ -187,6 +187,45 @@ class MeetingSummarizer:
         if not chunks:
             logger.info("No chunks to process. Returning empty notes.")
             return MeetingNotes()
+
+        # RAG Embedding and Vector Storage Ingestion (runs exactly once per upload)
+        try:
+            import uuid
+            from datetime import datetime
+            from app.ai.embeddings import get_embedding_service
+            from app.ai.vector_store import get_vector_store_service
+
+            actual_meeting_id = meeting_id or f"meeting_{uuid.uuid4().hex[:8]}"
+            actual_metadata = metadata or {}
+            
+            if "date" not in actual_metadata:
+                actual_metadata["date"] = datetime.now().strftime("%Y-%m-%d")
+            if "source_filename" not in actual_metadata:
+                actual_metadata["source_filename"] = "uploaded_transcript"
+
+            logger.info("Generating embeddings for transcript chunks and storing in ChromaDB...")
+            embed_start = time.perf_counter()
+            embedding_service = get_embedding_service()
+            vector_store_service = get_vector_store_service()
+
+            embeddings = embedding_service.embed_texts(chunks)
+            
+            metadata_list = []
+            for idx in range(len(chunks)):
+                chunk_meta = actual_metadata.copy()
+                chunk_meta["chunk_index"] = idx
+                metadata_list.append(chunk_meta)
+
+            vector_store_service.store_chunks(
+                meeting_id=actual_meeting_id,
+                chunks=chunks,
+                embeddings=embeddings,
+                metadata_list=metadata_list,
+            )
+            logger.info("Ingestion completed in %.2fs", time.perf_counter() - embed_start)
+
+        except Exception as exc:
+            logger.warning("Failed to store chunks in vector store: %s. Proceeding with summarization.", str(exc))
 
         ai_start = time.perf_counter()
 

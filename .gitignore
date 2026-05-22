@@ -34,3 +34,6 @@ uploads/
 
 # Node / frontend
 node_modules/
+
+# Vector Store database
+chroma_db/

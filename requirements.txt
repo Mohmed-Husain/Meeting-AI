@@ -9,3 +9,4 @@ langchain-text-splitters
 pydantic
 pypdf
 python-docx
+chromadb
