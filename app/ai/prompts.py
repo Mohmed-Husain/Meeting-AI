@@ -34,6 +34,14 @@ RAG_HUMAN_PROMPT = """Context from meeting transcript chunks:
 Question:
 {question}
 
+Instructions for Answer formatting:
+- Structure your response using markdown.
+- Use clear headings (e.g., ### Key Points, ### Action Items) and bullet points.
+- Separate different tasks or topics clearly.
+- Highlight important names, dates, and deadlines using **bold** text.
+- Avoid large continuous paragraphs; keep explanations concise and highly readable.
+- Ensure the output is optimized for clean frontend chat rendering.
+
 Answer:
 """
 

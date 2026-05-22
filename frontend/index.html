@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meeting AI Assistant</title>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
             --bg: #f7f2ea;
@@ -484,6 +485,28 @@
             color: #ffffff;
             text-decoration: underline;
         }
+        .message p {
+            margin-bottom: 12px;
+        }
+        .message p:last-child {
+            margin-bottom: 0;
+        }
+        .message h1, .message h2, .message h3, .message h4 {
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: var(--ink);
+        }
+        .message.user h1, .message.user h2, .message.user h3, .message.user h4 {
+            color: #ffffff;
+        }
+        .message ul, .message ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+        .message li {
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -785,8 +808,14 @@
             const div = document.createElement('div');
             div.className = `message ${role}`;
 
-            let formattedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            let html = `<div>${formattedContent}</div>`;
+            let html = `<div class="markdown-content">`;
+            if (typeof marked !== 'undefined') {
+                html += marked.parse(content);
+            } else {
+                let formattedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html += formattedContent.replace(/\n/g, '<br>');
+            }
+            html += `</div>`;
 
             if (chunks && chunks.length > 0) {
                 html += `<div class="source-chunks">`;
