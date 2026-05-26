@@ -1,34 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meeting AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;600;700&display=swap");
-
         :root {
             --bg: #f7f2ea;
             --bg-accent: #f0f7f4;
             --ink: #1a1f2b;
             --muted: #5b6576;
             --primary: #0f766e;
+            --primary-hover: #0d5f58;
             --secondary: #f25f5c;
+            --secondary-hover: #e04e4b;
             --card: #ffffff;
             --border: #e4ddd3;
             --shadow: 0 20px 40px rgba(14, 20, 30, 0.08);
+            --border-radius: 20px;
         }
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
             font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
             color: var(--ink);
             background: radial-gradient(circle at top, #fffaf4 0%, var(--bg) 45%, var(--bg-accent) 100%);
+            min-height: 100vh;
+            line-height: 1.6;
         }
 
         main {
@@ -42,30 +47,148 @@
             flex-direction: column;
             gap: 12px;
             margin-bottom: 32px;
+            text-align: center;
+            align-items: center;
         }
 
         h1 {
             font-family: "Fraunces", serif;
             font-size: clamp(2.2rem, 4vw, 3.4rem);
-            margin: 0;
+            color: var(--ink);
+            margin-bottom: 4px;
         }
 
         header p {
             max-width: 640px;
             color: var(--muted);
-            margin: 0;
             font-size: 1.05rem;
         }
 
+        /* Tabs styling */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .tab-btn {
+            background: var(--card);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 10px 24px;
+            border-radius: 999px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .tab-btn:hover {
+            color: var(--ink);
+            border-color: var(--muted);
+            transform: translateY(-1px);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 8px 16px rgba(15, 118, 110, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Panel Styling */
         .panel {
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: var(--border-radius);
             padding: 24px;
             box-shadow: var(--shadow);
         }
 
-        .upload-panel {
+        /* Form Inputs & Buttons */
+        input[type="file"], input[type="text"], select {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            color: var(--ink);
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 18px rgba(15, 118, 110, 0.2);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: var(--secondary);
+            color: #ffffff;
+            box-shadow: 0 4px 8px rgba(242, 95, 92, 0.15);
+        }
+
+        /* Ingest & Summarize Tab Styles */
+        .upload-section {
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -74,50 +197,25 @@
             overflow: hidden;
         }
 
-        .upload-panel::after {
+        .upload-section::after {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(120deg, rgba(15, 118, 110, 0.08), transparent 60%);
+            background: linear-gradient(120deg, rgba(15, 118, 110, 0.04), transparent 60%);
             pointer-events: none;
         }
 
-        form {
+        .upload-form {
             display: flex;
             flex-wrap: wrap;
             gap: 16px;
             align-items: center;
         }
 
-        input[type="file"] {
-            padding: 12px;
-            border: 1px dashed var(--border);
-            border-radius: 14px;
-            background: #fff;
+        .upload-form input[type="file"] {
             flex: 1 1 280px;
-        }
-
-        button {
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 999px;
-            font-weight: 600;
+            border: 1px dashed var(--border);
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 12px 18px rgba(15, 118, 110, 0.2);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
         .status {
@@ -125,7 +223,7 @@
             font-size: 0.95rem;
         }
 
-        .results {
+        .results-grid {
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -134,30 +232,36 @@
         .section-title {
             font-family: "Fraunces", serif;
             font-size: 1.4rem;
-            margin: 0 0 12px 0;
+            margin-bottom: 12px;
+            color: var(--ink);
         }
 
-        .panel {
-            width: 100%;
-        }
-
-        .agenda-item,
-        .action-item {
-            padding: 12px 14px;
+        .agenda-item, .action-item {
+            padding: 14px;
             border-radius: 16px;
             border: 1px solid rgba(15, 118, 110, 0.15);
-            background: rgba(15, 118, 110, 0.05);
+            background: rgba(15, 118, 110, 0.03);
             margin-bottom: 10px;
         }
 
         .agenda-title {
             font-weight: 600;
             margin-bottom: 6px;
+            color: var(--primary);
         }
 
-        ul {
+        ul.summary-list {
             padding-left: 20px;
-            margin: 0;
+        }
+
+        ul.summary-list li {
+            margin-bottom: 8px;
+        }
+
+        .action-meta {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-top: 6px;
         }
 
         .export {
@@ -169,187 +273,364 @@
         .export button {
             background: var(--secondary);
         }
+        .export button:hover:not(:disabled) {
+            background: var(--secondary-hover);
+            box-shadow: 0 12px 18px rgba(242, 95, 92, 0.2);
+        }
 
-        @media (max-width: 720px) {
-            main {
-                padding: 32px 18px 64px;
-            }
+        /* Q&A / Library Tab Styles */
+        .qa-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            height: 620px;
+        }
 
-            form {
-                flex-direction: column;
-                align-items: stretch;
+        @media (max-width: 850px) {
+            .qa-grid {
+                grid-template-columns: 1fr;
+                height: auto;
             }
+            .sidebar {
+                max-height: 280px;
+            }
+            .chat-area {
+                height: 520px;
+            }
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow: hidden;
+        }
+
+        .meeting-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 4px;
+        }
+
+        /* Custom Scrollbar for list and chat */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(15, 118, 110, 0.15);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(15, 118, 110, 0.3);
+        }
+
+        .meeting-item {
+            background: rgba(15, 118, 110, 0.03);
+            border: 1px solid rgba(15, 118, 110, 0.06);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .meeting-item:hover {
+            background: rgba(15, 118, 110, 0.06);
+            border-color: rgba(15, 118, 110, 0.15);
+        }
+
+        .meeting-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+            padding-right: 8px;
+        }
+
+        .meeting-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .meeting-date {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0 !important; /* overrides panel default padding for unified chat look */
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(15, 118, 110, 0.02);
+        }
+
+        .chat-header select {
+            flex: 1;
+            max-width: 320px;
+            padding: 8px 12px;
+            border-radius: 10px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            animation: fadeIn 0.3s ease-out;
+            font-size: 0.98rem;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--primary);
+            color: #ffffff;
+            border-bottom-right-radius: 2px;
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: var(--card);
+            color: var(--ink);
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .source-chunks {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--border);
+            font-size: 0.85rem;
+        }
+
+        .source-chunk {
+            background: var(--bg-accent);
+            border: 1px solid rgba(15, 118, 110, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            color: var(--muted);
+        }
+
+        .source-chunk strong {
+            color: var(--primary);
+        }
+
+        .chat-input-container {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--card);
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-form input {
+            flex: 1;
+            border-radius: 14px;
+        }
+
+        /* Micro spinners */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* General markdown styling */
+        .message strong {
+            color: var(--primary);
+        }
+        .message.user strong {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+        .message p {
+            margin-bottom: 12px;
+        }
+        .message p:last-child {
+            margin-bottom: 0;
+        }
+        .message h1, .message h2, .message h3, .message h4 {
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: var(--ink);
+        }
+        .message.user h1, .message.user h2, .message.user h3, .message.user h4 {
+            color: #ffffff;
+        }
+        .message ul, .message ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+        .message li {
+            margin-bottom: 4px;
         }
     </style>
 </head>
-
 <body>
+
     <main>
         <header>
             <h1>Meeting AI Assistant</h1>
-            <p>
-                Upload a transcript to get structured agendas, summaries, and action plans
-                using a map-reduce pipeline.
-            </p>
+            <p>Ingest transcripts, generate structured agendas, summaries, action plans, and ask questions across past meeting knowledge.</p>
         </header>
 
-        <section class="panel upload-panel">
-            <form id="upload-form">
-                <input type="file" id="file-input" accept=".txt,.pdf,.docx" />
-                <button type="submit" id="submit-btn">Process transcript</button>
-            </form>
-            <div class="status" id="status">Supported formats: TXT, PDF, DOCX.</div>
-        </section>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('summarize')">Ingest & Summarize</button>
+            <button class="tab-btn" onclick="switchTab('qa'); loadMeetings();">Ask Questions (RAG)</button>
+        </div>
 
-        <section class="results">
-            <div class="panel">
-                <h2 class="section-title">Agendas</h2>
-                <div id="agendas"></div>
+        <!-- TAB 1: SUMMARIZE -->
+        <div id="tab-summarize" class="tab-content active">
+            <section class="panel upload-section">
+                <form id="upload-form" class="upload-form">
+                    <input type="file" id="file-input" accept=".txt,.pdf,.docx" />
+                    <button type="submit" id="submit-btn" class="btn-primary">
+                        <span id="submit-text">Process transcript</span>
+                        <div id="submit-loader" class="loader" style="display: none;"></div>
+                    </button>
+                </form>
+                <div class="status" id="status">Supported formats: TXT, PDF, DOCX.</div>
+            </section>
+
+            <div class="results-grid" id="results-container" style="display: none;">
+                <section class="panel">
+                    <h2 class="section-title">Agendas</h2>
+                    <div id="agendas"></div>
+                </section>
+                <section class="panel">
+                    <h2 class="section-title">Summary</h2>
+                    <ul id="summary" class="summary-list"></ul>
+                </section>
+                <section class="panel">
+                    <h2 class="section-title">Action Plan</h2>
+                    <div id="action-plan"></div>
+                    <div class="export">
+                        <button id="export-btn" class="btn-primary" type="button">Export results</button>
+                    </div>
+                </section>
             </div>
-            <div class="panel">
-                <h2 class="section-title">Summary</h2>
-                <ul id="summary"></ul>
+        </div>
+
+        <!-- TAB 2: RAG Q&A -->
+        <div id="tab-qa" class="tab-content">
+            <div class="qa-grid">
+                <!-- Sidebar: Stored Meetings -->
+                <section class="panel sidebar">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2 class="section-title" style="margin: 0; font-size: 1.25rem;">Meeting Library</h2>
+                        <button onclick="loadMeetings()" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; border-radius: 999px;">↻</button>
+                    </div>
+                    <div id="meetings-list" class="meeting-list">
+                        <div style="color: var(--muted); font-size: 0.9rem;">Loading meetings...</div>
+                    </div>
+                </section>
+
+                <!-- Chat Console -->
+                <section class="panel chat-area">
+                    <div class="chat-header">
+                        <label for="meeting-selector" style="font-weight: 600; font-size: 0.95rem; color: var(--ink);">Search Context:</label>
+                        <select id="meeting-selector">
+                            <option value="">All Meetings</option>
+                        </select>
+                    </div>
+
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="message ai">
+                            Hello! I am connected to your ChromaDB vector store. Upload meeting transcripts to populate the library, and ask me any questions about them here.
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <form id="chat-form" class="chat-form">
+                            <input type="text" id="chat-input" placeholder="e.g., What were the next steps agreed upon regarding budget planning?" required autocomplete="off" />
+                            <button type="submit" id="chat-submit" class="btn-primary">
+                                <span id="chat-submit-text">Ask AI</span>
+                                <div id="chat-loader" class="loader" style="display: none;"></div>
+                            </button>
+                        </form>
+                    </div>
+                </section>
             </div>
-            <div class="panel">
-                <h2 class="section-title">Action Plan</h2>
-                <div id="action-plan"></div>
-                <div class="export">
-                    <button id="export-btn" type="button" disabled>Export results</button>
-                </div>
-            </div>
-        </section>
+        </div>
     </main>
 
     <script>
-        const form = document.getElementById("upload-form");
+        // --- Tab Management ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- Summarization & Ingestion Logic ---
+        const uploadForm = document.getElementById("upload-form");
         const fileInput = document.getElementById("file-input");
         const submitBtn = document.getElementById("submit-btn");
+        const submitText = document.getElementById("submit-text");
+        const submitLoader = document.getElementById("submit-loader");
         const statusEl = document.getElementById("status");
-        const agendasEl = document.getElementById("agendas");
-        const summaryEl = document.getElementById("summary");
-        const actionPlanEl = document.getElementById("action-plan");
-        const exportBtn = document.getElementById("export-btn");
+        const resultsContainer = document.getElementById("results-container");
 
         let latestResult = null;
 
-        const clearNode = (node) => {
-            while (node.firstChild) {
-                node.removeChild(node.firstChild);
-            }
-        };
+        const clearNode = (node) => { while (node.firstChild) node.removeChild(node.firstChild); };
+        const formatTitle = (text) => text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-        const setStatus = (message) => {
-            statusEl.textContent = message;
-        };
-
-        const renderTitle = (text, target) => {
-            const parts = text.split("**");
-            parts.forEach((part, index) => {
-                const el = document.createElement(index % 2 === 1 ? "strong" : "span");
-                el.textContent = part;
-                target.appendChild(el);
-            });
-        };
-
-        const renderAgendas = (agendas) => {
-            clearNode(agendasEl);
-            if (!agendas || agendas.length === 0) {
-                agendasEl.textContent = "No agendas detected.";
-                return;
-            }
-
-            agendas.forEach((item) => {
-                const card = document.createElement("div");
-                card.className = "agenda-item";
-
-                const title = document.createElement("div");
-                title.className = "agenda-title";
-                renderTitle(item.title || "Agenda", title);
-
-                const description = document.createElement("div");
-                description.textContent = item.description || "";
-
-                card.appendChild(title);
-                card.appendChild(description);
-                agendasEl.appendChild(card);
-            });
-        };
-
-        const renderSummary = (summary) => {
-            clearNode(summaryEl);
-            if (!summary || summary.length === 0) {
-                const item = document.createElement("li");
-                item.textContent = "No summary available.";
-                summaryEl.appendChild(item);
-                return;
-            }
-
-            summary.forEach((point) => {
-                const item = document.createElement("li");
-                item.textContent = point;
-                summaryEl.appendChild(item);
-            });
-        };
-
-        const renderActionPlan = (actions) => {
-            clearNode(actionPlanEl);
-            if (!actions || actions.length === 0) {
-                actionPlanEl.textContent = "No action items detected.";
-                return;
-            }
-
-            actions.forEach((action) => {
-                const card = document.createElement("div");
-                card.className = "action-item";
-
-                const task = document.createElement("div");
-                task.textContent = action.task || "Action item";
-
-                const meta = document.createElement("div");
-                const assigned = action.assigned_to ? `Assigned to ${action.assigned_to}` : "Unassigned";
-                const deadline = action.deadline ? `Deadline: ${action.deadline}` : "No deadline";
-                meta.textContent = `${assigned} • ${deadline}`;
-                meta.style.color = "var(--muted)";
-                meta.style.fontSize = "0.9rem";
-
-                card.appendChild(task);
-                card.appendChild(meta);
-                actionPlanEl.appendChild(card);
-            });
-        };
-
-        const setBusy = (busy) => {
-            submitBtn.disabled = busy;
-            exportBtn.disabled = busy || !latestResult;
-            fileInput.disabled = busy;
-        };
-
-        exportBtn.addEventListener("click", () => {
-            if (!latestResult) {
-                return;
-            }
-            const blob = new Blob([JSON.stringify(latestResult, null, 2)], {
-                type: "application/json",
-            });
-            const url = URL.createObjectURL(blob);
-            const anchor = document.createElement("a");
-            anchor.href = url;
-            anchor.download = "meeting-notes.json";
-            anchor.click();
-            URL.revokeObjectURL(url);
-        });
-
-        form.addEventListener("submit", async (event) => {
-            event.preventDefault();
+        uploadForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
             const file = fileInput.files[0];
+            if (!file) return statusEl.textContent = "Please select a transcript file.";
 
-            if (!file) {
-                setStatus("Please select a transcript file.");
-                return;
-            }
-
-            setBusy(true);
-            setStatus("Processing transcript. This may take a moment...");
+            submitBtn.disabled = true;
+            submitText.style.display = "none";
+            submitLoader.style.display = "inline-block";
+            statusEl.textContent = "Processing transcript, generating embeddings, and running summarization...";
+            resultsContainer.style.display = "none";
 
             try {
                 const formData = new FormData();
@@ -362,22 +643,236 @@
 
                 const payload = await response.json();
                 if (!response.ok) {
-                    throw new Error(payload.detail || "Failed to summarize transcript");
+                    throw new Error(payload.detail || "Failed to process transcript");
                 }
 
                 latestResult = payload;
-                renderAgendas(payload.agendas);
-                renderSummary(payload.summary);
-                renderActionPlan(payload.action_plan);
-                setStatus("Done! Review the structured notes below.");
-                exportBtn.disabled = false;
+                renderSummarizeResults(payload);
+                statusEl.textContent = "Done! Review the structured notes below.";
+                resultsContainer.style.display = "flex";
+                
+                // Reload meetings library in background
+                loadMeetings();
             } catch (error) {
-                setStatus(error.message || "Something went wrong.");
+                statusEl.textContent = error.message || "Something went wrong.";
             } finally {
-                setBusy(false);
+                submitBtn.disabled = false;
+                submitText.style.display = "inline";
+                submitLoader.style.display = "none";
             }
         });
+
+        function renderSummarizeResults(payload) {
+            // Agendas
+            const agendasEl = document.getElementById("agendas");
+            clearNode(agendasEl);
+            if (!payload.agendas || payload.agendas.length === 0) {
+                agendasEl.textContent = "No agendas detected.";
+            } else {
+                payload.agendas.forEach((item) => {
+                    const card = document.createElement("div");
+                    card.className = "agenda-item";
+                    card.innerHTML = `
+                        <div class="agenda-title">${formatTitle(item.title || "Agenda")}</div>
+                        <div>${item.description || ""}</div>
+                    `;
+                    agendasEl.appendChild(card);
+                });
+            }
+
+            // Summary
+            const summaryEl = document.getElementById("summary");
+            clearNode(summaryEl);
+            if (!payload.summary || payload.summary.length === 0) {
+                const item = document.createElement("li");
+                item.textContent = "No summary available.";
+                summaryEl.appendChild(item);
+            } else {
+                payload.summary.forEach((point) => {
+                    const item = document.createElement("li");
+                    item.textContent = point;
+                    summaryEl.appendChild(item);
+                });
+            }
+
+            // Action Plan
+            const actionPlanEl = document.getElementById("action-plan");
+            clearNode(actionPlanEl);
+            if (!payload.action_plan || payload.action_plan.length === 0) {
+                actionPlanEl.textContent = "No action items detected.";
+            } else {
+                payload.action_plan.forEach((action) => {
+                    const card = document.createElement("div");
+                    card.className = "action-item";
+                    card.innerHTML = `
+                        <div>${action.task || "Action item"}</div>
+                        <div class="action-meta">
+                            Assigned to ${action.assigned_to || "Unassigned"} &bull; Due: ${action.deadline || "No deadline"}
+                        </div>
+                    `;
+                    actionPlanEl.appendChild(card);
+                });
+            }
+        }
+
+        document.getElementById("export-btn").addEventListener("click", () => {
+            if (!latestResult) return;
+            const blob = new Blob([JSON.stringify(latestResult, null, 2)], {
+                type: "application/json",
+            });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = "meeting-notes.json";
+            anchor.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // --- RAG Q&A & Library Logic ---
+        const meetingsListEl = document.getElementById("meetings-list");
+        const meetingSelector = document.getElementById("meeting-selector");
+        const chatMessages = document.getElementById("chat-messages");
+        const chatForm = document.getElementById("chat-form");
+        const chatInput = document.getElementById("chat-input");
+        const chatSubmit = document.getElementById("chat-submit");
+        const chatSubmitText = document.getElementById("chat-submit-text");
+        const chatLoader = document.getElementById("chat-loader");
+
+        async function loadMeetings() {
+            try {
+                const res = await fetch("/api/meetings");
+                if (!res.ok) throw new Error("Could not retrieve meeting list.");
+                const meetings = await res.json();
+                renderMeetings(meetings);
+                updateMeetingSelector(meetings);
+            } catch (err) {
+                meetingsListEl.innerHTML = `<div style="color: var(--secondary); font-size: 0.9rem;">Error: ${err.message}</div>`;
+            }
+        }
+
+        function renderMeetings(meetings) {
+            clearNode(meetingsListEl);
+            if (meetings.length === 0) {
+                meetingsListEl.innerHTML = `<div style="color: var(--muted); font-size: 0.9rem;">No meetings stored. Ingest transcripts to see them here!</div>`;
+                return;
+            }
+
+            meetings.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'meeting-item';
+                div.innerHTML = `
+                    <div class="meeting-info">
+                        <span class="meeting-name" title="${m.source_filename}">${m.source_filename}</span>
+                        <span class="meeting-date">${m.date || "Unknown Date"}</span>
+                    </div>
+                    <button class="btn-danger" onclick="deleteMeeting('${m.meeting_id}')">Delete</button>
+                `;
+                meetingsListEl.appendChild(div);
+            });
+        }
+
+        function updateMeetingSelector(meetings) {
+            const currentValue = meetingSelector.value;
+            clearNode(meetingSelector);
+
+            const allOpt = document.createElement('option');
+            allOpt.value = "";
+            allOpt.textContent = "All Meetings";
+            meetingSelector.appendChild(allOpt);
+
+            meetings.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.meeting_id;
+                opt.textContent = `${m.source_filename} (${m.date})`;
+                meetingSelector.appendChild(opt);
+            });
+
+            if (meetings.find(m => m.meeting_id === currentValue)) {
+                meetingSelector.value = currentValue;
+            }
+        }
+
+        async function deleteMeeting(meetingId) {
+            if (!confirm("Are you sure you want to delete this meeting transcript from the vector store?")) return;
+
+            try {
+                const res = await fetch(`/api/meetings/${meetingId}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error("Could not complete delete operation.");
+                await loadMeetings();
+            } catch (err) {
+                alert(`Error deleting meeting: ${err.message}`);
+            }
+        }
+
+        function appendMessage(role, content, chunks = null) {
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+
+            let html = `<div class="markdown-content">`;
+            if (typeof marked !== 'undefined') {
+                html += marked.parse(content);
+            } else {
+                let formattedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html += formattedContent.replace(/\n/g, '<br>');
+            }
+            html += `</div>`;
+
+            if (chunks && chunks.length > 0) {
+                html += `<div class="source-chunks">`;
+                html += `<div style="margin-bottom: 6px; font-weight: 600; color: var(--ink);">Sources cited:</div>`;
+                chunks.forEach((c, idx) => {
+                    const matchPercent = Math.max(0, 100 - (c.distance * 50)).toFixed(0);
+                    html += `
+                        <div class="source-chunk">
+                            <strong>[${idx + 1}] ${c.source_filename}</strong> (Match score: ~${matchPercent}%)<br>
+                            "${c.text.substring(0, 160)}..."
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            div.innerHTML = html;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const query = chatInput.value.trim();
+            if (!query) return;
+
+            const meetingId = meetingSelector.value || null;
+
+            appendMessage('user', query);
+            chatInput.value = "";
+
+            chatSubmit.disabled = true;
+            chatSubmitText.style.display = "none";
+            chatLoader.style.display = "inline-block";
+
+            try {
+                const res = await fetch("/api/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: query, meeting_id: meetingId, n_results: 4 })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Query failed to resolve.");
+
+                appendMessage('ai', data.answer, data.source_chunks);
+            } catch (err) {
+                appendMessage('ai', `❌ Error: ${err.message}`);
+            } finally {
+                chatSubmit.disabled = false;
+                chatSubmitText.style.display = "inline";
+                chatLoader.style.display = "none";
+                chatInput.focus();
+            }
+        });
+
+        // Initialize on load
+        loadMeetings();
     </script>
 </body>
-
 </html>
