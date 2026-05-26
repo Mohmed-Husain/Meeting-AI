@@ -37,3 +37,14 @@ node_modules/
 
 # Vector Store database
 chroma_db/
+
+# md Files 
+memory.md
+Pipline.md
+Rag Pipline.md
+
+V2 Architecture & Pipeline.md
+
+# summeries 
+
+data/summaries
