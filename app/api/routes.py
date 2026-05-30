@@ -4,8 +4,13 @@ import uuid
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 
-from app.ai.schemas import MeetingNotes, QueryRequest, QueryResponse, RetrievalChunk
-from app.ai.summarizer import get_summarizer
+from app.ai.schemas.meeting_schema import (
+    MeetingNotes,
+    QueryRequest,
+    QueryResponse,
+    RetrievalChunk,
+)
+from app.ai.summarization.summarizer import get_summarizer
 from app.core.logger import get_logger
 from app.utils.file_loader import extract_text_from_path, save_upload
 
@@ -72,8 +77,8 @@ async def summarize_transcript(file: UploadFile = File(...)) -> MeetingNotes:
 async def query_meetings(request: QueryRequest) -> QueryResponse:
     logger.info("Received query request: '%s'", request.query)
     try:
-        from app.ai.retriever import get_retriever_service
-        from app.ai.rag_chain import get_rag_answer_service
+        from app.ai.rag.query_chain import get_rag_answer_service
+        from app.ai.rag.retriever import get_retriever_service
 
         retriever = get_retriever_service()
         answer_service = get_rag_answer_service()
@@ -119,7 +124,7 @@ async def query_meetings(request: QueryRequest) -> QueryResponse:
 async def list_meetings() -> list[dict]:
     logger.info("Received list meetings request")
     try:
-        from app.ai.vector_store import get_vector_store_service
+        from app.ai.rag.vector_store import get_vector_store_service
         vector_store = get_vector_store_service()
 
         meetings = await run_in_threadpool(vector_store.get_all_meetings)
@@ -133,7 +138,7 @@ async def list_meetings() -> list[dict]:
 async def delete_meeting(meeting_id: str) -> dict:
     logger.info("Received delete meeting request for: %s", meeting_id)
     try:
-        from app.ai.vector_store import get_vector_store_service
+        from app.ai.rag.vector_store import get_vector_store_service
         vector_store = get_vector_store_service()
 
         await run_in_threadpool(vector_store.delete_meeting_chunks, meeting_id)

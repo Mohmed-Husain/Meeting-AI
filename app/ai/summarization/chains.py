@@ -2,13 +2,15 @@ from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 
-from app.ai.prompts import (
+from app.ai.schemas.meeting_schema import MeetingNotes
+from app.ai.summarization.prompts import (
     MAP_HUMAN_PROMPT,
     MAP_SYSTEM_PROMPT,
     REDUCE_HUMAN_PROMPT,
     REDUCE_SYSTEM_PROMPT,
+    REDUCE_TEXT_HUMAN_PROMPT,
+    REDUCE_TEXT_SYSTEM_PROMPT,
 )
-from app.ai.schemas import MeetingNotes
 
 
 def build_map_chain(llm) -> Runnable:
@@ -31,3 +33,13 @@ def build_reduce_chain(llm) -> Runnable:
     ).partial(format_instructions=parser.get_format_instructions())
 
     return prompt | llm | parser
+
+
+def build_reduce_text_chain(llm) -> Runnable:
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", REDUCE_TEXT_SYSTEM_PROMPT),
+            ("human", REDUCE_TEXT_HUMAN_PROMPT),
+        ]
+    )
+    return prompt | llm | StrOutputParser()

@@ -1,5 +1,6 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+
 class TranscriptChunker:
     def __init__(
         self,
@@ -14,18 +15,16 @@ class TranscriptChunker:
                 "\n",
                 ". ",
                 " ",
-                ""
-            ]
+                "",
+            ],
         )
 
     def split_transcript(self, transcript: str) -> list[str]:
         """
         Split large transcript into smaller optimized chunks.
         """
-
         if not transcript.strip():
             return []
 
         chunks = self.splitter.split_text(transcript)
-
         return [chunk for chunk in chunks if chunk.strip()]

@@ -3,11 +3,13 @@ from functools import lru_cache
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
-from app.ai.prompts import RAG_SYSTEM_PROMPT, RAG_HUMAN_PROMPT
-from app.ai.summarizer import get_llm
+
+from app.ai.providers.llm_provider import get_llm
+from app.ai.summarization.prompts import RAG_HUMAN_PROMPT, RAG_SYSTEM_PROMPT
 from app.core.logger import get_logger
 
 logger = get_logger("meeting_ai")
+
 
 def build_rag_chain(llm) -> Runnable:
     """
@@ -20,6 +22,7 @@ def build_rag_chain(llm) -> Runnable:
         ]
     )
     return prompt | llm | StrOutputParser()
+
 
 class RAGAnswerService:
     def __init__(self) -> None:
@@ -34,8 +37,7 @@ class RAGAnswerService:
             return "No relevant meeting context was found to answer this question."
 
         logger.info("Synthesizing RAG answer for question: '%s'", question)
-        
-        # Format the context chunks beautifully
+
         formatted_chunks = []
         for idx, item in enumerate(retrieved_chunks, start=1):
             doc = item["document"]
@@ -43,7 +45,7 @@ class RAGAnswerService:
             source = meta.get("source_filename", "unknown")
             date = meta.get("date", "unknown")
             chunk_idx = meta.get("chunk_index", idx)
-            
+
             chunk_header = f"--- CHUNK {chunk_idx} (Source: {source}, Date: {date}) ---"
             formatted_chunks.append(f"{chunk_header}\n{doc}")
 
@@ -61,7 +63,7 @@ class RAGAnswerService:
             logger.exception("Failed to run RAG generation chain")
             raise
 
+
 @lru_cache(maxsize=1)
 def get_rag_answer_service() -> RAGAnswerService:
     return RAGAnswerService()
-

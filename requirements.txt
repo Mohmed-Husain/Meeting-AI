@@ -10,3 +10,5 @@ pydantic
 pypdf
 python-docx
 chromadb
+numpy
+scikit-learn

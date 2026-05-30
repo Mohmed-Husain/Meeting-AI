@@ -37,4 +37,3 @@ class RetrievalChunk(BaseModel):
 class QueryResponse(BaseModel):
     answer: str = Field(..., description="The context-aware AI generated answer.")
     source_chunks: list[RetrievalChunk] = Field(default_factory=list, description="The list of semantically retrieved context chunks.")
-

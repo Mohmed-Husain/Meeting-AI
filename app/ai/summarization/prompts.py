@@ -24,6 +24,17 @@ Create final meeting notes following the required JSON schema.
 {format_instructions}
 """
 
+REDUCE_TEXT_SYSTEM_PROMPT = """You compress partial meeting summaries into a concise consolidated summary.
+Preserve decisions, action items, deadlines, risks, and owners when mentioned.
+Avoid inventing details that are not present in the summaries.
+"""
+
+REDUCE_TEXT_HUMAN_PROMPT = """Partial summaries:
+{partial_summaries}
+
+Return a concise consolidated summary as short bullet points.
+"""
+
 RAG_SYSTEM_PROMPT = """You are an intelligent AI meeting assistant. You answer user questions about meetings based on the provided transcript chunks as context.
 Answer the question factually, clearly, and concisely. Focus only on the provided context. If the answer cannot be found or inferred from the provided context, state that you do not have enough information in the meeting records to answer.
 """
@@ -44,4 +55,3 @@ Instructions for Answer formatting:
 
 Answer:
 """
-

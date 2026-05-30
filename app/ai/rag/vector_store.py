@@ -1,15 +1,18 @@
 import os
 from functools import lru_cache
+
 import chromadb
+
 from app.core.logger import get_logger
 
 logger = get_logger("meeting_ai")
+
 
 class VectorStoreService:
     def __init__(self) -> None:
         db_path = os.getenv("CHROMA_DB_PATH", "chroma_db")
         logger.info("Initializing ChromaDB persistent client at: %s", db_path)
-        
+
         self.client = chromadb.PersistentClient(path=db_path)
         self.collection_name = "meeting_chunks"
         self.collection = self.client.get_or_create_collection(
@@ -42,7 +45,6 @@ class VectorStoreService:
 
         ids = [f"{meeting_id}_chunk_{idx}" for idx in range(len(chunks))]
 
-        # Ensure every metadata dict contains meeting_id
         for metadata in metadata_list:
             metadata["meeting_id"] = meeting_id
 
@@ -79,8 +81,6 @@ class VectorStoreService:
             where_clause["meeting_id"] = meeting_id
 
         try:
-            # collection.query returns a dict with 'documents', 'metadatas', 'distances', 'ids'
-            # Each is a list of lists since we can query multiple embeddings. We only pass one query_embedding.
             query_args = {
                 "query_embeddings": [query_embedding],
                 "n_results": n_results,
@@ -131,10 +131,9 @@ class VectorStoreService:
         """
         logger.info("Fetching all stored meetings from ChromaDB")
         try:
-            # We can get all metadatas in the collection
             results = self.collection.get(include=["metadatas"])
             metadatas = results.get("metadatas", [])
-            
+
             meetings_map = {}
             for meta in metadatas:
                 if not meta or "meeting_id" not in meta:
@@ -146,11 +145,12 @@ class VectorStoreService:
                         "date": meta.get("date", ""),
                         "source_filename": meta.get("source_filename", ""),
                     }
-            
+
             return list(meetings_map.values())
         except Exception:
             logger.exception("Failed to get stored meetings from ChromaDB")
             raise
+
 
 @lru_cache(maxsize=1)
 def get_vector_store_service() -> VectorStoreService:
